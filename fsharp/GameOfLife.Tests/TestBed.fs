@@ -36,6 +36,9 @@ type Universe(seed: Location list option) =
         ]
         |> List.map (fun n -> { x = loc.x + n.x; y = loc.y + n.y })
 
+    member this.evolve() =
+        new Universe(None)
+
 // ---------------------------------------------------------------------------------
 // Test helpers
 
@@ -86,3 +89,14 @@ let assertAreEqual (expected:obj) (actual:obj) =
     assertAreEqual Alive (universe.stateOf { x = 3; y = 3; })
     assertAreEqual Alive (universe.stateOf { x = 4; y = 3; })
     assertAreEqual Alive (universe.stateOf { x = 5; y = 3; })
+
+// The first generation is created by applying the above rules 
+// simultaneously to every cell in the seed—births and deaths 
+// occur simultaneously, and the discrete moment at which this 
+// happens is sometimes called a tick (in other words, each 
+// generation is a pure function of the preceding one).
+[<Test>] let ``e) the universe can evolve``() = 
+    let universe = new Universe(None)
+    let nextGen = universe.evolve()
+    Assert.IsInstanceOf(universe.GetType(), nextGen)
+    Assert.AreNotSame(universe, nextGen)
