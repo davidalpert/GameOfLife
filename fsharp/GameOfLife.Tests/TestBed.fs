@@ -14,6 +14,9 @@ type CellState =
 
 type Universe(seed: Location list option) =
 
+    let shouldSurvive (u:Universe) (cell:Location) =
+        u.numberOfNeighborsOf Alive cell = 2
+
     member this.livingCells = match seed with
                               | Some(cells) -> cells
                               | None -> []
@@ -42,7 +45,12 @@ type Universe(seed: Location list option) =
         |> List.length
 
     member this.evolve() =
-        new Universe(None)
+        let cellsThatSurvive = 
+            this.livingCells |> List.filter (shouldSurvive this)
+
+        let seed = Some(cellsThatSurvive)
+
+        new Universe(seed)
 
     member this.maxLocation =
         match this.livingCells.Length with 
