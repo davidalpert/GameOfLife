@@ -56,6 +56,43 @@ let toS (loc:Location) =
 let assertAreEqual (expected:obj) (actual:obj) =
     Assert.AreEqual(expected, actual, (sprintf "Expected: %A\n  Actual:   %A\n" expected actual))
 
+let join (separator:string) (lines:string list) =
+    String.Join(separator, lines)
+
+let newline = Environment.NewLine
+
+let draw (universe:Universe) =
+    let min = { x = 0; y = 0; }
+    let max = universe.maxLocation
+    let maxToDraw = { x = max.x + 1; y = max.y + 1; }
+    let lines = 
+          seq { for Y in min.y .. maxToDraw.y do
+                yield seq { for X in min.x .. maxToDraw.x do
+                                   yield match universe.stateOf { x = X; y = Y; } with
+                                         | Alive -> "X"
+                                         | Dead  -> "."
+                          }
+                          |> List.ofSeq |> join String.Empty
+              }
+              |> List.ofSeq |> join newline
+    lines
+
+let write (title:string) (universe:Universe) =
+    Console.WriteLine(title)
+    Console.WriteLine("----------")
+    Console.WriteLine(draw universe)
+
+let validate (expectedLines:string list) (actual:string) =
+    let expected = expectedLines |> join newline
+    Console.WriteLine("Expected:")
+    Console.WriteLine("---------")
+    Console.WriteLine(expected)
+    Console.WriteLine()
+    Console.WriteLine("Actual:")
+    Console.WriteLine("-------")
+    Console.WriteLine(actual)
+    Assert.AreEqual(expected, actual)
+
 // ---------------------------------------------------------------------------------
 // Tests
 
@@ -108,43 +145,6 @@ let assertAreEqual (expected:obj) (actual:obj) =
     let nextGen = universe.evolve()
     Assert.IsInstanceOf(universe.GetType(), nextGen)
     Assert.AreNotSame(universe, nextGen)
-
-let join (separator:string) (lines:string list) =
-    String.Join(separator, lines)
-
-let newline = Environment.NewLine
-
-let draw (universe:Universe) =
-    let min = { x = 0; y = 0; }
-    let max = universe.maxLocation
-    let maxToDraw = { x = max.x + 1; y = max.y + 1; }
-    let lines = 
-          seq { for Y in min.y .. maxToDraw.y do
-                yield seq { for X in min.x .. maxToDraw.x do
-                                   yield match universe.stateOf { x = X; y = Y; } with
-                                         | Alive -> "X"
-                                         | Dead  -> "."
-                          }
-                          |> List.ofSeq |> join String.Empty
-              }
-              |> List.ofSeq |> join newline
-    lines
-
-let write (title:string) (universe:Universe) =
-    Console.WriteLine(title)
-    Console.WriteLine("----------")
-    Console.WriteLine(draw universe)
-
-let validate (expectedLines:string list) (actual:string) =
-    let expected = expectedLines |> join newline
-    Console.WriteLine("Expected:")
-    Console.WriteLine("---------")
-    Console.WriteLine(expected)
-    Console.WriteLine()
-    Console.WriteLine("Actual:")
-    Console.WriteLine("-------")
-    Console.WriteLine(actual)
-    Assert.AreEqual(expected, actual)
 
 [<Test>] let ``f) can draw an empty universe``() = 
     let universe = new Universe(None)
