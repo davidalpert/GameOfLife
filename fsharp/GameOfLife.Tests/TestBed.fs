@@ -20,6 +20,11 @@ type Universe(seed: Location list option) =
         | 3 -> true
         | _ -> false
 
+    let shouldBeBorn (u:Universe) (cell:Location) =
+        match u.numberOfNeighborsOf Alive cell with
+        | 3 -> true
+        | _ -> false
+
     member this.livingCells = match seed with
                               | Some(cells) -> cells
                               | None -> []
@@ -49,9 +54,23 @@ type Universe(seed: Location list option) =
 
     member this.evolve() =
         let cellsThatSurvive = 
-            this.livingCells |> List.filter (shouldSurvive this)
+            this.livingCells |> Seq.filter (shouldSurvive this)
 
-        let seed = Some(cellsThatSurvive)
+        let cellsThatShouldBeBorn =
+            this.livingCells
+            |> Seq.collect (this.neighborsOf)
+            |> Seq.distinct
+            |> Seq.filter (shouldBeBorn this)
+
+        let livingCellsInNextGen = Seq.concat [
+                                                  cellsThatSurvive
+                                                  cellsThatShouldBeBorn
+                                              ]
+                                   |> List.ofSeq
+
+        let seed = match livingCellsInNextGen.Length with
+                   | 0 -> None
+                   | _ -> Some(livingCellsInNextGen)
 
         new Universe(seed)
 
@@ -300,9 +319,10 @@ let buildSeedFrom (textPattern:string list) =
                    ]
 
     let expected = [ // 0123
-                       "...." // 0
+                       "..X." // 0
                        "..X." // 1
-                       "...." // 2
+                       "..X." // 2
+                       "...." // 3
                    ]
 
     let seed = buildSeedFrom pattern
@@ -323,9 +343,9 @@ let buildSeedFrom (textPattern:string list) =
                    ]
 
     let expected = [ // 01234
-                       "....." // 0
+                       "..X.." // 0
                        ".XXX." // 1
-                       "..X.." // 2
+                       ".XXX." // 2
                        "....." // 3
                    ]
 
@@ -349,9 +369,9 @@ let buildSeedFrom (textPattern:string list) =
 
     let expected = [ // 01234
                        "....." // 0
-                       "..X.." // 1
+                       ".XXX." // 1
                        ".X.X." // 2
-                       "..X.." // 3
+                       ".XXX." // 3
                        "....." // 4
                    ]
 
@@ -365,5 +385,28 @@ let buildSeedFrom (textPattern:string list) =
     validate expected nextGen
 
 [<Test>] let ``o) a dead cell with three live neighbors comes alive``() = 
-    Assert.Inconclusive("To be written...")
+    let pattern =  [ // 01234
+                       "....." // 0
+                       "..X.." // 1
+                       ".XXX." // 2
+                       "..X.." // 3
+                       "....." // 4
+                   ]
+
+    let expected = [ // 01234
+                       "....." // 0
+                       ".XXX." // 1
+                       ".X.X." // 2
+                       ".XXX." // 3
+                       "....." // 4
+                   ]
+
+    let seed = buildSeedFrom pattern
+
+    let universe = new Universe(seed)
+
+    let nextGen = universe.evolve()
+
+    write "Seed" universe
+    validate expected nextGen
 
