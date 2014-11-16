@@ -19,7 +19,9 @@ type Universe(seed: Location list option) =
                               | None -> []
 
     member this.stateOf (loc:Location) =
-        Dead
+        match this.livingCells |> List.exists (fun cell -> cell = loc) with
+        | true -> Alive
+        | false -> Dead
 
     member this.neighborsOf (loc:Location) =
         [
@@ -39,6 +41,9 @@ type Universe(seed: Location list option) =
 
 let toS (loc:Location) =
     sprintf "\n%s" ((sprintf "%A" loc).Replace("\n", String.Empty))
+
+let assertAreEqual (expected:obj) (actual:obj) =
+    Assert.AreEqual(expected, actual, (sprintf "Expected: %A\n  Actual:   %A\n" expected actual))
 
 // ---------------------------------------------------------------------------------
 // Tests
@@ -78,7 +83,6 @@ let toS (loc:Location) =
 
     let universe = new Universe(seed)
 
-    Assert.AreEqual(Alive, universe.stateOf { x = 3; y = 3; })
-    Assert.AreEqual(Alive, universe.stateOf { x = 4; y = 3; })
-    Assert.AreEqual(Alive, universe.stateOf { x = 5; y = 3; })
-
+    assertAreEqual Alive (universe.stateOf { x = 3; y = 3; })
+    assertAreEqual Alive (universe.stateOf { x = 4; y = 3; })
+    assertAreEqual Alive (universe.stateOf { x = 5; y = 3; })
