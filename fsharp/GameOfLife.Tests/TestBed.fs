@@ -36,6 +36,11 @@ type Universe(seed: Location list option) =
         ]
         |> List.map (fun n -> { x = loc.x + n.x; y = loc.y + n.y })
 
+    member this.numberOfNeighborsOf (state:CellState) (loc:Location) =
+        this.neighborsOf loc
+        |> List.filter (fun n -> this.stateOf n = state)
+        |> List.length
+
     member this.evolve() =
         new Universe(None)
 
@@ -210,6 +215,23 @@ let buildSeedFrom (textPattern:string list) =
 
     validate pattern universe
 
+[<Test>] let ``i) a universe can count the number of living neighbors``() = 
+    let pattern = [ // 01234
+                      "....." // 0
+                      "..XX." // 1
+                      "...X." // 2
+                   ]
+
+    let seed = buildSeedFrom pattern
+
+    let universe = new Universe(seed)
+
+    Assert.AreEqual(0, universe.numberOfNeighborsOf Alive { x = 0; y = 0; })
+    Assert.AreEqual(1, universe.numberOfNeighborsOf Alive { x = 1; y = 1; })
+    Assert.AreEqual(2, universe.numberOfNeighborsOf Alive { x = 2; y = 1; })
+    Assert.AreEqual(3, universe.numberOfNeighborsOf Alive { x = 2; y = 2; })
+    Assert.AreEqual(2, universe.numberOfNeighborsOf Alive { x = 3; y = 1; })
+
 // The rules:
 // ---------
 // Any live cell with less than two live neighbours dies, as if caused by under-population.
@@ -217,21 +239,21 @@ let buildSeedFrom (textPattern:string list) =
 // Any live cell with more than three live neighbours dies, as if by overcrowding.
 // Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 
-[<Test>] let ``i) a live cell with no live neighbors dies``() = 
+[<Test>] let ``j) a live cell with no live neighbors dies``() = 
     Assert.Inconclusive("To be written...")
 
-[<Test>] let ``j) a live cell with one live neighbor dies``() = 
+[<Test>] let ``k) a live cell with one live neighbor dies``() = 
     Assert.Inconclusive("To be written...")
 
-[<Test>] let ``k) a live cell with two live neighbors lives``() = 
+[<Test>] let ``l) a live cell with two live neighbors lives``() = 
     Assert.Inconclusive("To be written...")
 
-[<Test>] let ``l) a live cell with three live neighbors lives``() = 
+[<Test>] let ``m) a live cell with three live neighbors lives``() = 
     Assert.Inconclusive("To be written...")
 
-[<Test>] let ``m) a live cell with four live neighbors lives``() = 
+[<Test>] let ``n) a live cell with four live neighbors lives``() = 
     Assert.Inconclusive("To be written...")
 
-[<Test>] let ``n) a dead cell with three live neighbors comes alive``() = 
+[<Test>] let ``o) a dead cell with three live neighbors comes alive``() = 
     Assert.Inconclusive("To be written...")
 
