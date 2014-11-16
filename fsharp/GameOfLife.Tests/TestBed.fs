@@ -15,7 +15,10 @@ type CellState =
 type Universe(seed: Location list option) =
 
     let shouldSurvive (u:Universe) (cell:Location) =
-        u.numberOfNeighborsOf Alive cell = 2
+        match u.numberOfNeighborsOf Alive cell with
+        | 2
+        | 3 -> true
+        | _ -> false
 
     member this.livingCells = match seed with
                               | Some(cells) -> cells
@@ -312,7 +315,29 @@ let buildSeedFrom (textPattern:string list) =
     validate expected nextGen
 
 [<Test>] let ``m) a live cell with three live neighbors lives``() = 
-    Assert.Inconclusive("To be written...")
+    let pattern =  [ // 01234
+                       "....." // 0
+                       ".XXX." // 1
+                       "..X.." // 2
+                       "....." // 3
+                   ]
+
+    let expected = [ // 01234
+                       "....." // 0
+                       ".XXX." // 1
+                       "..X.." // 2
+                       "....." // 3
+                   ]
+
+    let seed = buildSeedFrom pattern
+
+    let universe = new Universe(seed)
+
+    let nextGen = universe.evolve()
+
+    write "Seed" universe
+    validate expected nextGen
+
 
 [<Test>] let ``n) a live cell with four live neighbors lives``() = 
     Assert.Inconclusive("To be written...")
