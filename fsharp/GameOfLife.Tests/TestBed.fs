@@ -82,7 +82,7 @@ let write (title:string) (universe:Universe) =
     Console.WriteLine("----------")
     Console.WriteLine(draw universe)
 
-let validate (expectedLines:string list) (actual:string) =
+let validatePicture (expectedLines:string list) (actual:string) =
     let expected = expectedLines |> join newline
     Console.WriteLine("Expected:")
     Console.WriteLine("---------")
@@ -92,6 +92,29 @@ let validate (expectedLines:string list) (actual:string) =
     Console.WriteLine("-------")
     Console.WriteLine(actual)
     Assert.AreEqual(expected, actual)
+
+let validate (expectedLines:string list) (universe:Universe) =
+    let picture = draw universe
+    validatePicture expectedLines picture
+
+let buildSeedFrom (textPattern:string list) =
+    let pattern = 
+        textPattern
+        |> List.mapi (fun Y line -> 
+                        line.ToCharArray()
+                        |> Array.mapi (fun X c -> match c with 
+                                               | 'X' -> Some({ x = X; y = Y;})
+                                               | '.' -> None
+                                      )
+                        |> List.ofArray
+                        |> List.filter (fun c -> c.IsSome)
+                        |> List.map (fun c -> c.Value)
+                    )
+        |> List.collect (fun cells -> cells)
+
+    match pattern.Length with
+    | 0 -> None
+    | _ -> Some(pattern)
 
 // ---------------------------------------------------------------------------------
 // Tests
@@ -153,7 +176,7 @@ let validate (expectedLines:string list) (actual:string) =
                        ".." // 0
                        ".." // 1
                    ]
-    validate expected picture 
+    validatePicture expected picture 
     
 [<Test>] let ``g) can draw a universe with living cells``() = 
     let pattern = [
@@ -164,8 +187,6 @@ let validate (expectedLines:string list) (actual:string) =
 
     let universe = new Universe(seed)
 
-    let picture = draw universe
-
     let expected = [ // 0123456
                        "......." // 0
                        "......." // 1
@@ -174,7 +195,43 @@ let validate (expectedLines:string list) (actual:string) =
                        "......." // 4
                    ]
 
-    validate expected picture 
-    
+    validate expected universe 
 
+[<Test>] let ``h) can seed a universe with a text pattern``() = 
+    let pattern = [ // 01234
+                      "....." // 0
+                      ".XXX." // 1
+                      "....." // 2
+                   ]
+
+    let seed = buildSeedFrom pattern
+
+    let universe = new Universe(seed)
+
+    validate pattern universe
+
+// The rules:
+// ---------
+// Any live cell with less than two live neighbours dies, as if caused by under-population.
+// Any live cell with two or three live neighbours lives on to the next generation.
+// Any live cell with more than three live neighbours dies, as if by overcrowding.
+// Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+
+[<Test>] let ``i) a live cell with no live neighbors dies``() = 
+    Assert.Inconclusive("To be written...")
+
+[<Test>] let ``j) a live cell with one live neighbor dies``() = 
+    Assert.Inconclusive("To be written...")
+
+[<Test>] let ``k) a live cell with two live neighbors lives``() = 
+    Assert.Inconclusive("To be written...")
+
+[<Test>] let ``l) a live cell with three live neighbors lives``() = 
+    Assert.Inconclusive("To be written...")
+
+[<Test>] let ``m) a live cell with four live neighbors lives``() = 
+    Assert.Inconclusive("To be written...")
+
+[<Test>] let ``n) a dead cell with three live neighbors comes alive``() = 
+    Assert.Inconclusive("To be written...")
 
