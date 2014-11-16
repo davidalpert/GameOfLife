@@ -338,9 +338,31 @@ let buildSeedFrom (textPattern:string list) =
     write "Seed" universe
     validate expected nextGen
 
+[<Test>] let ``n) a live cell with four live neighbors dies``() = 
+    let pattern =  [ // 01234
+                       "....." // 0
+                       "..X.." // 1
+                       ".XXX." // 2
+                       "..X.." // 3
+                       "....." // 4
+                   ]
 
-[<Test>] let ``n) a live cell with four live neighbors lives``() = 
-    Assert.Inconclusive("To be written...")
+    let expected = [ // 01234
+                       "....." // 0
+                       "..X.." // 1
+                       ".X.X." // 2
+                       "..X.." // 3
+                       "....." // 4
+                   ]
+
+    let seed = buildSeedFrom pattern
+
+    let universe = new Universe(seed)
+
+    let nextGen = universe.evolve()
+
+    write "Seed" universe
+    validate expected nextGen
 
 [<Test>] let ``o) a dead cell with three live neighbors comes alive``() = 
     Assert.Inconclusive("To be written...")
