@@ -240,13 +240,68 @@ let buildSeedFrom (textPattern:string list) =
 // Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 
 [<Test>] let ``j) a live cell with no live neighbors dies``() = 
-    Assert.Inconclusive("To be written...")
+    let pattern =  [ // 01234
+                       "....." // 0
+                       "..X.." // 1
+                       "....." // 2
+                   ]
+
+    let expected = [ // 012
+                       ".." // 0
+                       ".." // 1
+                   ]
+
+    let seed = buildSeedFrom pattern
+
+    let universe = new Universe(seed)
+
+    let nextGen = universe.evolve()
+
+    write "Seed" universe
+    validate expected nextGen
 
 [<Test>] let ``k) a live cell with one live neighbor dies``() = 
-    Assert.Inconclusive("To be written...")
+    let pattern =  [ // 01234
+                       "....." // 0
+                       ".XX.." // 1
+                       "....." // 2
+                   ]
+
+    let expected = [ // 012
+                       ".." // 0
+                       ".." // 1
+                   ]
+
+    let seed = buildSeedFrom pattern
+
+    let universe = new Universe(seed)
+
+    let nextGen = universe.evolve()
+
+    write "Seed" universe
+    validate expected nextGen
 
 [<Test>] let ``l) a live cell with two live neighbors lives``() = 
-    Assert.Inconclusive("To be written...")
+    let pattern =  [ // 01234
+                       "....." // 0
+                       ".XXX." // 1
+                       "....." // 2
+                   ]
+
+    let expected = [ // 0123
+                       "...." // 0
+                       "..X." // 1
+                       "...." // 2
+                   ]
+
+    let seed = buildSeedFrom pattern
+
+    let universe = new Universe(seed)
+
+    let nextGen = universe.evolve()
+
+    write "Seed" universe
+    validate expected nextGen
 
 [<Test>] let ``m) a live cell with three live neighbors lives``() = 
     Assert.Inconclusive("To be written...")
