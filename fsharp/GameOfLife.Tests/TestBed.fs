@@ -39,6 +39,14 @@ type Universe(seed: Location list option) =
     member this.evolve() =
         new Universe(None)
 
+    member this.maxLocation =
+        match this.livingCells.Length with 
+        | 0 -> { x = 0; y = 0; }
+        | _ -> {
+                   x = (this.livingCells |> List.maxBy (fun c -> c.x)).x;
+                   y = (this.livingCells |> List.maxBy (fun c -> c.y)).y;
+               }
+
 // ---------------------------------------------------------------------------------
 // Test helpers
 
@@ -100,3 +108,73 @@ let assertAreEqual (expected:obj) (actual:obj) =
     let nextGen = universe.evolve()
     Assert.IsInstanceOf(universe.GetType(), nextGen)
     Assert.AreNotSame(universe, nextGen)
+
+let join (separator:string) (lines:string list) =
+    String.Join(separator, lines)
+
+let newline = Environment.NewLine
+
+let draw (universe:Universe) =
+    let min = { x = 0; y = 0; }
+    let max = universe.maxLocation
+    let maxToDraw = { x = max.x + 1; y = max.y + 1; }
+    let lines = 
+          seq { for Y in min.y .. maxToDraw.y do
+                yield seq { for X in min.x .. maxToDraw.x do
+                                   yield match universe.stateOf { x = X; y = Y; } with
+                                         | Alive -> "X"
+                                         | Dead  -> "."
+                          }
+                          |> List.ofSeq |> join String.Empty
+              }
+              |> List.ofSeq |> join newline
+    lines
+
+let write (title:string) (universe:Universe) =
+    Console.WriteLine(title)
+    Console.WriteLine("----------")
+    Console.WriteLine(draw universe)
+
+let validate (expectedLines:string list) (actual:string) =
+    let expected = expectedLines |> join newline
+    Console.WriteLine("Expected:")
+    Console.WriteLine("---------")
+    Console.WriteLine(expected)
+    Console.WriteLine()
+    Console.WriteLine("Actual:")
+    Console.WriteLine("-------")
+    Console.WriteLine(actual)
+    Assert.AreEqual(expected, actual)
+
+[<Test>] let ``f) can draw an empty universe``() = 
+    let universe = new Universe(None)
+    let picture = draw universe
+    let expected = [ // 01
+                       ".." // 0
+                       ".." // 1
+                   ]
+    validate expected picture 
+    
+[<Test>] let ``g) can draw a universe with living cells``() = 
+    let pattern = [
+                        { x = 3; y = 3; }; { x = 4; y = 3; }; { x = 5; y = 3; }
+                  ]
+
+    let seed = Some(pattern)
+
+    let universe = new Universe(seed)
+
+    let picture = draw universe
+
+    let expected = [ // 0123456
+                       "......." // 0
+                       "......." // 1
+                       "......." // 2
+                       "...XXX." // 3
+                       "......." // 4
+                   ]
+
+    validate expected picture 
+    
+
+
