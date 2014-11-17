@@ -481,3 +481,88 @@ let buildSeedFrom (textPattern:string list) =
     printfn ""
     let gen2 = gen1.evolve()
     validate pattern gen2
+
+[<Test>] let ``r) oscillators (period 3)``() = 
+    let pattern =   [ // 0123456789012345
+                        "................" // 0
+                        "................" // 1
+                        "....XXX...XXX..." // 2
+                        "................" // 3
+                        "..X....X.X....X." // 4
+                        "..X....X.X....X." // 5
+                        "..X....X.X....X." // 6
+                        "....XXX...XXX..." // 7
+                        "................" // 8
+                        "....XXX...XXX..." // 9
+                        "..X....X.X....X." // 0
+                        "..X....X.X....X." // 1
+                        "..X....X.X....X." // 2
+                        "................" // 3
+                        "....XXX...XXX..." // 4
+                        "................" // 5
+                    ]
+
+    let expected1 = [ // 01234567890123456
+                        "................." // 0
+                        ".....X.....X....." // 1
+                        ".....X.....X....." // 2
+                        ".....XX...XX....." // 3
+                        "................." // 4
+                        ".XXX..XX.XX..XXX." // 5
+                        "...X.X.X.X.X.X..." // 6
+                        ".....XX...XX....." // 7
+                        "................." // 8
+                        ".....XX...XX....." // 9
+                        "...X.X.X.X.X.X..." // 0
+                        ".XXX..XX.XX..XXX." // 1
+                        "................." // 2
+                        ".....XX...XX....." // 3
+                        ".....X.....X....." // 4
+                        ".....X.....X....." // 5
+                        "................." // 6
+                   ]
+
+    let expected2 = [ // 01234567890123456
+                        "................" // 0
+                        "................" // 1
+                        "....XX.....XX..." // 2
+                        ".....XX...XX...." // 3
+                        "..X..X.X.X.X..X." // 4
+                        "..XXX.XX.XX.XXX." // 5
+                        "...X.X.X.X.X.X.." // 6
+                        "....XXX...XXX..." // 7
+                        "................" // 8
+                        "....XXX...XXX..." // 9
+                        "...X.X.X.X.X.X.." // 0
+                        "..XXX.XX.XX.XXX." // 1
+                        "..X..X.X.X.X..X." // 2
+                        ".....XX...XX...." // 3
+                        "....XX.....XX..." // 4
+                        "................" // 5
+                   ]
+
+    let seed = buildSeedFrom pattern
+    let universe = new Universe(seed)
+    write "Seed" universe
+
+    printfn ""
+    printfn "Generation 1:"
+    printfn ""
+
+    let gen1 = universe.evolve()
+    validate expected1 gen1
+
+    printfn ""
+    printfn "Generation 2:"
+    printfn ""
+
+    let gen2 = gen1.evolve()
+    validate expected2 gen2
+
+    printfn ""
+    printfn "Generation 3:"
+    printfn ""
+
+    let gen3 = gen2.evolve()
+    validate pattern gen3
+
