@@ -119,13 +119,17 @@ let write (title:string) (universe:Universe) =
 
 let validatePicture (expectedLines:string list) (actual:string) =
     let expected = expectedLines |> join newline
-    printfn "Expected:"
-    printfn "" 
-    printfn "%s" expected
-    printfn "" 
-    printfn "Actual:"
-    printfn "" 
-    printfn "%s" actual
+    match expected = actual with
+    | true -> 
+        printfn "%s" actual
+    | false ->
+        printfn "Expected:"
+        printfn "" 
+        printfn "%s" expected
+        printfn "" 
+        printfn "Actual:"
+        printfn "" 
+        printfn "%s" actual
     Assert.AreEqual(expected, actual)
 
 let validate (expectedLines:string list) (universe:Universe) =
@@ -566,3 +570,164 @@ let buildSeedFrom (textPattern:string list) =
     let gen3 = gen2.evolve()
     validate pattern gen3
 
+[<Test>] let ``s) spaceships``() = 
+    let pattern =   [ // 0123456
+                        "......." // 0
+                        "..X...." // 1
+                        "...X..." // 2
+                        ".XXX..." // 3
+                        "......." // 4
+                        "......." // 5
+                        "......." // 6
+                        "......." // 7
+                        "......." // 8
+                        "..XXXX." // 9
+                        ".X...X." // 0
+                        ".....X." // 1
+                        ".X..X.." // 2
+                        "......." // 3
+                    ]
+
+    let expected1 = [ // 01234567
+                        "........"
+                        "........"
+                        ".X.X...."
+                        "..XX...."
+                        "..X....."
+                        "........"
+                        "........"
+                        "........"
+                        "...XX..."
+                        "..XXXX.."
+                        "..XX.XX."
+                        "....XX.."
+                        "........"
+                   ]
+
+    let expected2 = [ // 01234567
+                        "........"
+                        "........"
+                        "...X...."
+                        ".X.X...."
+                        "..XX...."
+                        "........"
+                        "........"
+                        "........"
+                        "..X..X.."
+                        "......X."
+                        "..X...X."
+                        "...XXXX."
+                        "........"
+                     ]
+
+    let expected3 = [ // 012345678
+                        "........."
+                        "........."
+                        "..X......"
+                        "...XX...."
+                        "..XX....."
+                        "........."
+                        "........."
+                        "........."
+                        "........."
+                        ".....XX.."
+                        "...XX.XX."
+                        "...XXXX.."
+                        "....XX..."
+                        "........."
+                   ]
+
+    let expected4 = [ // 012345678
+                        "........."
+                        "........."
+                        "...X....."
+                        "....X...."
+                        "..XXX...."
+                        "........."
+                        "........."
+                        "........."
+                        "........."
+                        "....XXXX."
+                        "...X...X."
+                        ".......X."
+                        "...X..X.."
+                        "........."
+                   ]
+
+    let expected5 = [ // 0123456789
+                        ".........."
+                        ".........."
+                        ".........."
+                        "..X.X....."
+                        "...XX....."
+                        "...X......"
+                        ".........."
+                        ".........."
+                        ".....XX..."
+                        "....XXXX.."
+                        "....XX.XX."
+                        "......XX.."
+                        ".........."
+                   ]
+
+    let expected6 = [ // 0123456789
+                        ".........."
+                        ".........."
+                        ".........."
+                        "....X....."
+                        "..X.X....."
+                        "...XX....."
+                        ".........."
+                        ".........."
+                        "....X..X.."
+                        "........X."
+                        "....X...X."
+                        ".....XXXX."
+                        ".........."
+                   ]
+
+    let seed = buildSeedFrom pattern
+    let universe = new Universe(seed)
+    write "Seed" universe
+
+    printfn ""
+    printfn "Generation 1:"
+    printfn ""
+
+    let gen1 = universe.evolve()
+    validate expected1 gen1
+
+    printfn ""
+    printfn "Generation 2:"
+    printfn ""
+
+    let gen2 = gen1.evolve()
+    validate expected2 gen2
+
+    printfn ""
+    printfn "Generation 3:"
+    printfn ""
+
+    let gen3 = gen2.evolve()
+    validate expected3 gen3
+
+    printfn ""
+    printfn "Generation 4:"
+    printfn ""
+
+    let gen4 = gen3.evolve()
+    validate expected4 gen4
+
+    printfn ""
+    printfn "Generation 5:"
+    printfn ""
+
+    let gen5 = gen4.evolve()
+    validate expected5 gen5
+
+    printfn ""
+    printfn "Generation 6:"
+    printfn ""
+
+    let gen6 = gen5.evolve()
+    validate expected6 gen6
