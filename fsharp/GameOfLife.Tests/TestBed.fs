@@ -410,3 +410,31 @@ let buildSeedFrom (textPattern:string list) =
     write "Seed" universe
     validate expected nextGen
 
+[<Test>] let ``p) still lifes``() = 
+    let pattern =  [ // 01234567890123
+                       ".............." // 0
+                       "..XX......XX.." // 1
+                       "..XX.....X..X." // 2
+                       "..........X.X." // 3
+                       "...........X.." // 4
+                       "...XX........." // 5
+                       "..X..X........" // 6
+                       "...XX....XX..." // 7
+                       ".........X.X.." // 8
+                       "..........X..." // 9
+                       ".............." // 0
+                   ]
+
+    let expected = pattern
+
+    let seed = buildSeedFrom pattern
+
+    let universe = new Universe(seed)
+
+    let nextGen = universe.evolve()
+
+    write "Seed" universe
+    validate expected nextGen
+
+
+
