@@ -74,17 +74,17 @@ type Universe(seed: Location list option) =
 
         new Universe(seed)
 
-    member this.maxLocation =
-        match this.livingCells.Length with 
-        | 0 -> { x = 0; y = 0; }
-        | _ -> {
-                   x = (this.livingCells |> List.maxBy (fun c -> c.x)).x;
-                   y = (this.livingCells |> List.maxBy (fun c -> c.y)).y;
-               }
-
 // ---------------------------------------------------------------------------------
 // Test helpers
 
+let maxLocation (universe:Universe) =
+    match universe.livingCells.Length with 
+    | 0 -> { x = 0; y = 0; }
+    | _ -> {
+               x = (universe.livingCells |> List.maxBy (fun c -> c.x)).x;
+               y = (universe.livingCells |> List.maxBy (fun c -> c.y)).y;
+           }
+    
 let toS (loc:Location) =
     sprintf "\n%s" ((sprintf "%A" loc).Replace("\n", String.Empty))
 
@@ -98,7 +98,7 @@ let newline = Environment.NewLine
 
 let draw (universe:Universe) =
     let min = { x = 0; y = 0; }
-    let max = universe.maxLocation
+    let max = maxLocation universe
     let maxToDraw = { x = max.x + 1; y = max.y + 1; }
     let lines = 
           seq { for Y in min.y .. maxToDraw.y do
