@@ -113,19 +113,19 @@ let draw (universe:Universe) =
     lines
 
 let write (title:string) (universe:Universe) =
-    Console.WriteLine(title)
-    Console.WriteLine("----------")
-    Console.WriteLine(draw universe)
+    printfn "%s" title
+    printfn ""
+    printfn "%s" (draw universe)
 
 let validatePicture (expectedLines:string list) (actual:string) =
     let expected = expectedLines |> join newline
-    Console.WriteLine("Expected:")
-    Console.WriteLine("---------")
-    Console.WriteLine(expected)
-    Console.WriteLine()
-    Console.WriteLine("Actual:")
-    Console.WriteLine("-------")
-    Console.WriteLine(actual)
+    printfn "Expected:"
+    printfn "" 
+    printfn "%s" expected
+    printfn "" 
+    printfn "Actual:"
+    printfn "" 
+    printfn "%s" actual
     Assert.AreEqual(expected, actual)
 
 let validate (expectedLines:string list) (universe:Universe) =
@@ -436,5 +436,48 @@ let buildSeedFrom (textPattern:string list) =
     write "Seed" universe
     validate expected nextGen
 
+[<Test>] let ``q) oscillators (period 2)``() = 
+    let pattern =  [ // 01234567890123
+                       ".............." // 0
+                       ".............." // 1
+                       "..XXX.....XXX." // 2
+                       ".........XXX.." // 3
+                       ".............." // 4
+                       ".............." // 5
+                       "...XX........." // 6
+                       "...XX........." // 7
+                       ".....XX......." // 8
+                       ".....XX......." // 9
+                       ".............." // 0
+                   ]
 
+    let expected = [ // 01234567890123
+                       ".............." // 0
+                       "...X.......X.." // 1
+                       "...X.....X..X." // 2
+                       "...X.....X..X." // 3
+                       "..........X..." // 4
+                       ".............." // 5
+                       "...XX........." // 6
+                       "...X.........." // 7
+                       "......X......." // 8
+                       ".....XX......." // 9
+                       ".............." // 0
+                   ]
 
+    let seed = buildSeedFrom pattern
+    let universe = new Universe(seed)
+    write "Seed" universe
+
+    printfn ""
+    printfn "Generation 1:"
+    printfn ""
+
+    let gen1 = universe.evolve()
+    validate expected gen1
+
+    printfn ""
+    printfn "Generation 2:"
+    printfn ""
+    let gen2 = gen1.evolve()
+    validate pattern gen2
